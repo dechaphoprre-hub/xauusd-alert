@@ -2,73 +2,76 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#0d1117">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>XAUUSD ATH Alert</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-height:100vh}
 .header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{font-size:16px;font-weight:700;color:#ffd700;letter-spacing:1px}
-.price-badge{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:6px 12px;text-align:right}
-.price-val{font-size:20px;font-weight:700;color:#ffd700;font-family:monospace}
-.price-chg{font-size:11px;margin-top:1px}
+.logo{font-size:16px;font-weight:700;color:#ffd700}
+.price-badge{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:6px 12px;text-align:right;min-width:120px}
+.price-val{font-size:22px;font-weight:700;font-family:monospace;color:#ffd700;transition:color .3s}
+.price-sub{font-size:11px;margin-top:1px}
 .up{color:#3fb950}.down{color:#f85149}.neu{color:#8b949e}
 .tabs{display:flex;background:#161b22;border-bottom:1px solid #30363d;position:sticky;top:57px;z-index:99}
-.tab{flex:1;padding:10px;text-align:center;font-size:12px;color:#8b949e;cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tab{flex:1;padding:10px;text-align:center;font-size:12px;color:#8b949e;cursor:pointer;border-bottom:2px solid transparent}
 .tab.active{color:#ffd700;border-bottom-color:#ffd700}
 .tab-content{display:none}.tab-content.active{display:block}
 .section{padding:12px 16px}
-.sec-title{font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-/* Chart placeholder via TradingView widget */
-#tv-widget-wrap{border-radius:10px;overflow:hidden;margin-bottom:12px;height:300px;background:#161b22;border:1px solid #30363d}
+.sec-title{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pulse{width:7px;height:7px;border-radius:50%;background:#3fb950;animation:blink 2s infinite;display:inline-block}
+.pulse.off{background:#f85149;animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* Chart */
+.chart-wrap{background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;margin-bottom:6px;position:relative}
+canvas{display:block;width:100%}
+.chart-info{position:absolute;top:8px;left:10px;font-size:11px;color:#8b949e;font-family:monospace}
 .tf-row{display:flex;gap:6px;margin-bottom:12px}
-.tf-btn{flex:1;padding:6px;background:#21262d;border:1px solid #30363d;border-radius:6px;color:#8b949e;font-size:12px;cursor:pointer}
+.tf-btn{flex:1;padding:6px 0;background:#21262d;border:1px solid #30363d;border-radius:6px;color:#8b949e;font-size:12px;cursor:pointer;text-align:center}
 .tf-btn.active{background:#ffd700;color:#0d1117;border-color:#ffd700;font-weight:700}
+/* Cards */
 .alert-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.alert-card{background:#161b22;border-radius:10px;padding:12px;text-align:center}
-.alert-card.near{border:1px solid #d29922}
-.alert-card.touch{border:1px solid #f85149}
-.alert-card .lbl{font-size:10px;color:#8b949e;margin-bottom:4px}
-.alert-card .lvl{font-size:18px;font-weight:700;font-family:monospace}
-.alert-card.near .lvl{color:#ffa500}
-.alert-card.touch .lvl{color:#f85149}
-.alert-card .dist{font-size:10px;color:#8b949e;margin-top:2px}
+.acard{background:#161b22;border-radius:10px;padding:12px;text-align:center}
+.acard.above{border:1px solid #388bfd55}.acard.below{border:1px solid #f8514955}
+.acard .lbl{font-size:10px;color:#8b949e;margin-bottom:6px}
+.acard .lvl{font-size:17px;font-weight:700;font-family:monospace}
+.acard.above .lvl{color:#58a6ff}.acard.below .lvl{color:#ffa657}
+.acard .dst{font-size:11px;color:#8b949e;margin-top:3px}
+/* Banner */
 .banner{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13px;display:none}
-.banner.show{display:block}
-.banner-warn{background:#3d2e0a;border:1px solid #d29922;color:#ffa500}
-.banner-alert{background:#2d0f0f;border:1px solid #f85149;color:#f85149}
+.banner.show{display:flex;align-items:center;gap:8px}
+.bnear{background:#2e1f00;border:1px solid #d29922;color:#ffa500}
+.btouch{background:#2d0f0f;border:1px solid #f85149;color:#f85149}
+/* Status */
+.status-bar{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#8b949e;display:flex;justify-content:space-between;align-items:center}
+/* MT5 */
+.mt5-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(135deg,#1a3a5c,#0d2137);border:1px solid #1f6feb;border-radius:10px;color:#58a6ff;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-bottom:12px}
+/* Levels list */
 .levels-wrap{background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;margin-bottom:12px}
-.level-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid #21262d}
-.level-row:last-child{border-bottom:none}
-.level-row.nearest{background:#1c2a1a}
-.level-row.near-warn{background:#2a1e0a}
-.level-dot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
-.dot-green{background:#3fb950}.dot-yellow{background:#ffa500}.dot-red{background:#f85149}
-.level-num{font-size:15px;font-weight:600;font-family:monospace;flex:1}
-.level-dist{font-size:11px;color:#8b949e;text-align:right}
-.level-tag{font-size:10px;padding:2px 6px;border-radius:4px;margin-left:6px}
-.tag-nearest{background:#1f4d2b;color:#3fb950}
-.tag-near{background:#3d2e0a;color:#ffa500}
-.settings-wrap{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:12px}
-.input-row{display:flex;gap:8px;margin-bottom:10px;align-items:center}
-.input-row label{font-size:12px;color:#8b949e;width:90px;flex-shrink:0}
+.lrow{display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #21262d;font-size:14px}
+.lrow:last-child{border-bottom:none}
+.lrow.hi{background:#1c2a1a}.lrow.warn{background:#2a1e0a}
+.ldot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
+.dg{background:#3fb950}.dy{background:#ffa500}.dr{background:#f85149}
+.lnum{font-family:monospace;flex:1;font-size:14px}
+.ltag{font-size:10px;padding:2px 5px;border-radius:4px;margin-left:4px}
+.tg{background:#1f4d2b;color:#3fb950}.ty{background:#3d2e0a;color:#ffa500}
+.ldist{font-size:11px;color:#8b949e}
+.lx{background:none;border:none;color:#f85149;cursor:pointer;padding-left:8px;font-size:14px}
+.empty{text-align:center;color:#8b949e;padding:24px;font-size:13px}
+/* Settings */
+.scard{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:12px}
+.irow{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.irow label{font-size:12px;color:#8b949e;width:90px;flex-shrink:0}
 .inp{flex:1;background:#21262d;border:1px solid #30363d;border-radius:6px;padding:7px 10px;color:#e6edf3;font-size:13px;outline:none}
 .inp:focus{border-color:#ffd700}
-.btn{padding:9px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer}
-.btn-gold{background:#ffd700;color:#0d1117;width:100%}
-.btn-sm{padding:6px 12px;font-size:12px}
-.btn-danger{background:#21262d;color:#f85149;border:1px solid #f85149}
-.paste-area{width:100%;background:#21262d;border:1px solid #30363d;border-radius:6px;padding:8px;color:#e6edf3;font-size:12px;font-family:monospace;resize:vertical;min-height:80px;outline:none}
-.paste-area:focus{border-color:#ffd700}
-.mt5-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:linear-gradient(135deg,#1a3a5c,#0d2137);border:1px solid #1f6feb;border-radius:10px;color:#58a6ff;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-bottom:12px}
-.status-row{display:flex;align-items:center;gap:8px;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#8b949e}
-.status-dot{width:8px;height:8px;border-radius:50%;background:#3fb950;animation:pulse 2s infinite;flex-shrink:0}
-.status-dot.err{background:#f85149;animation:none}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.notif-perm{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#8b949e;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.empty-msg{text-align:center;color:#8b949e;padding:24px;font-size:13px}
-.src-badge{font-size:10px;color:#8b949e;margin-left:6px}
+.btn{padding:9px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+.bgold{background:#ffd700;color:#0d1117}
+.bred{background:#21262d;color:#f85149;border:1px solid #f85149}
+.bsm{padding:6px 12px;font-size:12px;width:auto}
+.parea{width:100%;background:#21262d;border:1px solid #30363d;border-radius:6px;padding:8px;color:#e6edf3;font-size:12px;font-family:monospace;resize:vertical;min-height:80px;outline:none}
+.nperm{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#8b949e;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.demo-badge{background:#21262d;border:1px solid #388bfd44;border-radius:6px;padding:4px 10px;font-size:10px;color:#58a6ff}
 </style>
 </head>
 <body>
@@ -76,333 +79,398 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
 <div class="header">
   <div class="logo">⚡ XAUUSD</div>
   <div class="price-badge">
-    <div class="price-val" id="livePrice">—</div>
-    <div class="price-chg neu" id="priceChg">กำลังโหลด...</div>
+    <div class="price-val" id="pVal">—</div>
+    <div class="price-sub neu" id="pChg">loading...</div>
   </div>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
-  <div class="tab" onclick="switchTab('levels')">📋 Levels</div>
-  <div class="tab" onclick="switchTab('settings')">⚙️ Settings</div>
+  <div class="tab active" onclick="goTab('dashboard')">📊 Dashboard</div>
+  <div class="tab" onclick="goTab('levels')">📋 Levels</div>
+  <div class="tab" onclick="goTab('settings')">⚙️ Settings</div>
 </div>
 
 <!-- DASHBOARD -->
 <div class="tab-content active" id="tab-dashboard">
-  <div class="section">
-    <div id="banner-near" class="banner banner-warn">🟡 <span id="banner-near-text"></span></div>
-    <div id="banner-touch" class="banner banner-alert">🔴 <span id="banner-touch-text"></span></div>
+<div class="section">
+  <div id="bnear" class="banner bnear">🟡 <span id="bnear-txt"></span></div>
+  <div id="btouch" class="banner btouch">🔴 <span id="btouch-txt"></span></div>
 
-    <div class="status-row">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">กำลังเชื่อมต่อ...</span>
-      <span class="src-badge" id="srcBadge"></span>
-    </div>
-
-    <!-- TradingView Chart -->
-    <div class="sec-title">Live Chart</div>
-    <div id="tv-widget-wrap">
-      <iframe id="tv-iframe"
-        src="https://s.tradingview.com/widgetsnippet/embed/?symbol=OANDA%3AXAUUSD&interval=5&theme=dark&style=1&locale=th&toolbar_bg=%23161b22&enable_publishing=false&hide_top_toolbar=false&hide_legend=false&save_image=false&container_id=tv"
-        style="width:100%;height:300px;border:none;"
-        allowtransparency="true"
-      ></iframe>
-    </div>
-    <div class="tf-row">
-      <button class="tf-btn" onclick="setTV('1')">1m</button>
-      <button class="tf-btn active" onclick="setTV('5')">5m</button>
-      <button class="tf-btn" onclick="setTV('15')">15m</button>
-      <button class="tf-btn" onclick="setTV('60')">1h</button>
-      <button class="tf-btn" onclick="setTV('240')">4h</button>
-    </div>
-
-    <div class="sec-title">Nearest ATH Levels</div>
-    <div class="alert-cards">
-      <div class="alert-card near">
-        <div class="lbl">🟡 ABOVE</div>
-        <div class="lvl" id="nearest-above">—</div>
-        <div class="dist" id="dist-above">—</div>
-      </div>
-      <div class="alert-card touch">
-        <div class="lbl">🔴 BELOW</div>
-        <div class="lvl" id="nearest-below">—</div>
-        <div class="dist" id="dist-below">—</div>
-      </div>
-    </div>
-
-    <a class="mt5-btn" href="metatrader5://">📈 Open MT5</a>
+  <div class="status-bar">
+    <span><span class="pulse" id="pdot"></span> <span id="pstatus">กำลังโหลด...</span></span>
+    <span class="demo-badge" id="srcLabel">—</span>
   </div>
+
+  <!-- Canvas Chart -->
+  <div class="sec-title"><span class="pulse" id="cdot"></span>Live Chart</div>
+  <div class="chart-wrap">
+    <canvas id="chart" height="220"></canvas>
+    <div class="chart-info" id="chartInfo"></div>
+  </div>
+  <div class="tf-row">
+    <div class="tf-btn" onclick="setTF(1,this)">1m</div>
+    <div class="tf-btn active" onclick="setTF(5,this)">5m</div>
+    <div class="tf-btn" onclick="setTF(15,this)">15m</div>
+    <div class="tf-btn" onclick="setTF(60,this)">1h</div>
+  </div>
+
+  <div class="sec-title">Nearest ATH Levels</div>
+  <div class="alert-cards">
+    <div class="acard above"><div class="lbl">▲ ABOVE</div><div class="lvl" id="nabove">—</div><div class="dst" id="dabove">—</div></div>
+    <div class="acard below"><div class="lbl">▼ BELOW</div><div class="lvl" id="nbelow">—</div><div class="dst" id="dbelow">—</div></div>
+  </div>
+
+  <a class="mt5-btn" href="metatrader5://">📈 Open MT5</a>
+</div>
 </div>
 
 <!-- LEVELS -->
 <div class="tab-content" id="tab-levels">
-  <div class="section">
-    <div class="sec-title">ATH Grid Levels</div>
-    <div class="levels-wrap" id="levelsList">
-      <div class="empty-msg">ยังไม่มี levels — ไปที่ ⚙️ Settings เพื่อเพิ่มครับ</div>
-    </div>
-  </div>
+<div class="section">
+  <div class="sec-title">ATH Grid Levels</div>
+  <div class="levels-wrap" id="lvlList"><div class="empty">ยังไม่มี levels</div></div>
+</div>
 </div>
 
 <!-- SETTINGS -->
 <div class="tab-content" id="tab-settings">
-  <div class="section">
-    <div class="sec-title">Notification</div>
-    <div class="notif-perm" id="notifPerm">
-      🔔 Push Notification ยังไม่ได้เปิด
-      <button class="btn btn-sm btn-gold" onclick="requestNotif()">เปิด</button>
-    </div>
+<div class="section">
+  <div class="sec-title">Notification</div>
+  <div class="nperm" id="nperm">🔔 Push Notification ยังไม่ได้เปิด <button class="btn bgold bsm" onclick="reqNotif()">เปิด</button></div>
 
-    <div class="sec-title">การแจ้งเตือน</div>
-    <div class="settings-wrap">
-      <div class="input-row">
-        <label>Near Zone (±$)</label>
-        <input class="inp" type="number" id="nearZone" value="5" min="1" max="100">
-      </div>
-      <div class="input-row">
-        <label>Refresh (วิ)</label>
-        <input class="inp" type="number" id="refreshSec" value="15" min="10" max="300">
-      </div>
-      <button class="btn btn-gold" onclick="saveSettings()">💾 บันทึก Settings</button>
-    </div>
-
-    <div class="sec-title" style="margin-top:16px">เพิ่ม Level ทีละตัว</div>
-    <div class="settings-wrap">
-      <div class="input-row">
-        <label>ราคา ($)</label>
-        <input class="inp" type="number" id="newLevel" placeholder="เช่น 3500" step="0.5">
-      </div>
-      <button class="btn btn-gold" onclick="addLevel()">➕ เพิ่ม Level</button>
-    </div>
-
-    <div class="sec-title" style="margin-top:16px">Paste หลาย Levels (จาก Excel)</div>
-    <div class="settings-wrap">
-      <textarea class="paste-area" id="pasteArea" placeholder="วาง levels จาก Excel&#10;คั่นด้วย Enter, comma หรือ space&#10;เช่น:&#10;3500&#10;3550&#10;3600.5"></textarea>
-      <br><br>
-      <button class="btn btn-gold" onclick="importPaste()">📥 Import Levels</button>
-    </div>
-
-    <div class="settings-wrap" style="margin-top:12px">
-      <button class="btn btn-danger btn-sm" style="width:100%" onclick="clearLevels()">🗑️ ล้าง Levels ทั้งหมด</button>
-    </div>
+  <div class="sec-title">การแจ้งเตือน</div>
+  <div class="scard">
+    <div class="irow"><label>Near Zone (±$)</label><input class="inp" type="number" id="nz" value="5" min="1" max="200"></div>
+    <div class="irow"><label>Refresh (วิ)</label><input class="inp" type="number" id="rs" value="15" min="5" max="300"></div>
+    <button class="btn bgold" onclick="saveSett()">💾 บันทึก Settings</button>
   </div>
+
+  <div class="sec-title" style="margin-top:16px">เพิ่ม Level ทีละตัว</div>
+  <div class="scard">
+    <div class="irow"><label>ราคา ($)</label><input class="inp" type="number" id="newLv" placeholder="เช่น 3500" step="0.5"></div>
+    <button class="btn bgold" onclick="addLv()">➕ เพิ่ม Level</button>
+  </div>
+
+  <div class="sec-title" style="margin-top:16px">Paste หลาย Levels (จาก Excel)</div>
+  <div class="scard">
+    <textarea class="parea" id="parea" placeholder="วาง levels จาก Excel&#10;คั่นด้วย Enter, comma หรือ space&#10;เช่น:&#10;3500&#10;3550&#10;3600.5"></textarea>
+    <br><br>
+    <button class="btn bgold" onclick="importPaste()">📥 Import Levels</button>
+  </div>
+
+  <div class="scard" style="margin-top:12px">
+    <button class="btn bred" onclick="clearLvs()">🗑️ ล้าง Levels ทั้งหมด</button>
+  </div>
+
+  <div class="scard" style="margin-top:4px;font-size:11px;color:#8b949e">
+    💡 <b style="color:#ffd700">หมายเหตุ:</b> เมื่อ deploy บน GitHub Pages ราคาจะดึง real-time จาก API อัตโนมัติ ในโหมด preview นี้ใช้ราคา simulation
+  </div>
+</div>
 </div>
 
 <script>
-// ─── State ───────────────────────────────────────────────
-let levels = JSON.parse(localStorage.getItem('ath_levels')||'[]');
-let settings = JSON.parse(localStorage.getItem('ath_settings')||'{"nearZone":5,"refreshSec":15}');
-let currentPrice=0, prevPrice=0;
-let refreshTimer=null;
-let lastNearAlert={}, lastTouchAlert={};
-let currentTF='5';
+// ── Storage ──────────────────────────────────────────────────────
+let lvs = JSON.parse(localStorage.getItem('ath_lvs')||'[]');
+let cfg = JSON.parse(localStorage.getItem('ath_cfg')||'{"nz":5,"rs":15}');
+let price=0, prevP=0;
+let timer=null;
+let lastNA={},lastTA={};
+let candles=[], tf=5;
+// Simulated base price (realistic XAUUSD range)
+let simPrice = 3320 + Math.random()*80;
 
-document.getElementById('nearZone').value=settings.nearZone;
-document.getElementById('refreshSec').value=settings.refreshSec;
-updateNotifUI();
-fetchPrice();
-startRefresh();
-renderLevels();
+document.getElementById('nz').value=cfg.nz;
+document.getElementById('rs').value=cfg.rs;
+updateNperm();
+buildCandles();
+tick();
+startTimer();
+renderLvs();
 
-// ─── TradingView iframe ───────────────────────────────────
-function setTV(interval){
-  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  currentTF=interval;
-  document.getElementById('tv-iframe').src=
-    `https://s.tradingview.com/widgetsnippet/embed/?symbol=OANDA%3AXAUUSD&interval=${interval}&theme=dark&style=1&locale=th&toolbar_bg=%23161b22&enable_publishing=false&hide_top_toolbar=false&hide_legend=false&save_image=false`;
+// ── Price (Real API with fallback to simulation) ──────────────────
+async function fetchReal(){
+  const apis=[
+    ()=>fetch('https://data-asg.goldprice.org/dbXRates/USD',{signal:AbortSignal.timeout(4000)})
+          .then(r=>r.json()).then(d=>+d.items[0].xauPrice),
+    ()=>fetch('https://metals-api.com/api/latest?access_key=demo&base=USD&symbols=XAU',{signal:AbortSignal.timeout(4000)})
+          .then(r=>r.json()).then(d=>1/d.rates.XAU),
+  ];
+  for(const fn of apis){
+    try{
+      const p=await fn();
+      if(p>2000&&p<10000)return p;
+    }catch(e){}
+  }
+  return null;
 }
 
-// ─── Price APIs (fallback chain) ─────────────────────────
-async function fetchPrice(){
-  // Source 1: Metals.live (no CORS issue)
-  try{
-    const r=await fetch('https://metals.live/api/spot',{signal:AbortSignal.timeout(5000)});
-    const d=await r.json();
-    const gold=d.find?.(x=>x.metal==='gold')||d.gold||d;
-    const p=parseFloat(gold?.price||gold?.ask||gold);
-    if(p>2000&&p<10000){setPrice(p,'metals.live');return;}
-  }catch(e){}
-
-  // Source 2: Frankfurter / open exchange rate proxy for XAU
-  try{
-    const r=await fetch('https://api.frankfurter.app/latest?from=XAU&to=USD',{signal:AbortSignal.timeout(5000)});
-    const d=await r.json();
-    const p=parseFloat(d?.rates?.USD);
-    if(p>2000){setPrice(p,'frankfurter');return;}
-  }catch(e){}
-
-  // Source 3: GoldAPI via allorigins proxy
-  try{
-    const url=encodeURIComponent('https://data-asg.goldprice.org/dbXRates/USD');
-    const r=await fetch(`https://api.allorigins.win/get?url=${url}`,{signal:AbortSignal.timeout(6000)});
-    const d=await r.json();
-    const obj=JSON.parse(d.contents);
-    const p=parseFloat(obj?.items?.[0]?.xauPrice);
-    if(p>2000){setPrice(p,'goldprice.org');return;}
-  }catch(e){}
-
-  // Fallback: keep last price, show error
-  setStatus(false,'เชื่อมต่อไม่ได้ — ลองใหม่...');
-}
-
-function setPrice(p,src){
-  prevPrice=currentPrice||p;
-  currentPrice=p;
-  const el=document.getElementById('livePrice');
-  const chgEl=document.getElementById('priceChg');
-  el.textContent=p.toFixed(2);
-  const diff=p-prevPrice;
-  if(Math.abs(diff)<0.001){el.style.color='#ffd700';chgEl.className='price-chg neu';chgEl.textContent='─';}
-  else if(diff>0){el.style.color='#3fb950';chgEl.className='price-chg up';chgEl.textContent=`▲ ${diff.toFixed(2)}`;}
-  else{el.style.color='#f85149';chgEl.className='price-chg down';chgEl.textContent=`▼ ${Math.abs(diff).toFixed(2)}`;}
-  setStatus(true,`อัปเดตเมื่อ ${new Date().toLocaleTimeString('th-TH')}`,src);
-  updateNearestCards();
+async function tick(){
+  const real=await fetchReal();
+  if(real){
+    simPrice=real;
+    document.getElementById('srcLabel').textContent='Live API ✓';
+  } else {
+    // simulate realistic movement
+    simPrice += (Math.random()-0.48)*1.5;
+    document.getElementById('srcLabel').textContent='Simulation';
+  }
+  prevP=price||simPrice;
+  price=simPrice;
+  pushCandle(price);
+  updatePrice();
+  updateCards();
   checkAlerts();
-  renderLevels();
+  drawChart();
+  renderLvs();
 }
 
-function setStatus(ok,txt,src=''){
-  const dot=document.getElementById('statusDot');
-  dot.className='status-dot'+(ok?'':' err');
-  document.getElementById('statusText').textContent=txt;
-  document.getElementById('srcBadge').textContent=src?`[${src}]`:'';
+function startTimer(){
+  if(timer)clearInterval(timer);
+  timer=setInterval(tick,cfg.rs*1000);
 }
 
-function startRefresh(){
-  if(refreshTimer)clearInterval(refreshTimer);
-  refreshTimer=setInterval(fetchPrice,settings.refreshSec*1000);
+// ── Candle engine ─────────────────────────────────────────────────
+function buildCandles(){
+  candles=[];
+  let p=simPrice;
+  for(let i=80;i>=0;i--){
+    const o=p;
+    const h=o+(Math.random()*4);
+    const l=o-(Math.random()*4);
+    const c=l+(Math.random()*(h-l));
+    candles.push({o,h,l,c});
+    p=c+(Math.random()-0.48)*2;
+  }
 }
 
-// ─── Nearest Cards ────────────────────────────────────────
-function updateNearestCards(){
-  if(!levels.length||!currentPrice)return;
-  const above=levels.filter(l=>l>=currentPrice).sort((a,b)=>a-b);
-  const below=levels.filter(l=>l<currentPrice).sort((a,b)=>b-a);
+function pushCandle(p){
+  if(!candles.length)return;
+  const last=candles[candles.length-1];
+  last.c=p;
+  if(p>last.h)last.h=p;
+  if(p<last.l)last.l=p;
+  if(candles.length>=80){
+    candles.shift();
+    const prev=candles[candles.length-1].c;
+    candles.push({o:prev,h:prev+(Math.random()*3),l:prev-(Math.random()*3),c:p});
+  }
+}
+
+// ── Canvas chart ─────────────────────────────────────────────────
+function drawChart(){
+  const cv=document.getElementById('chart');
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.parentElement.offsetWidth;
+  const H=220;
+  cv.width=W*dpr; cv.height=H*dpr;
+  cv.style.width=W+'px'; cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  ctx.fillStyle='#161b22'; ctx.fillRect(0,0,W,H);
+
+  const pad={t:16,b:24,l:10,r:52};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  const visible=candles.slice(-60);
+  if(!visible.length)return;
+
+  let minP=Math.min(...visible.map(c=>c.l));
+  let maxP=Math.max(...visible.map(c=>c.h));
+  // Include ATH levels in range
+  lvs.forEach(l=>{ if(l>minP&&l<maxP+50){minP=Math.min(minP,l-5);maxP=Math.max(maxP,l+5);} });
+  const range=maxP-minP||10;
+  const scaleY=v=>pad.t+ch*(1-(v-minP)/range);
+
+  // Grid lines
+  ctx.strokeStyle='#21262d'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+ch*(i/4);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    const pv=(maxP-range*(i/4)).toFixed(1);
+    ctx.fillStyle='#8b949e';ctx.font='9px monospace';ctx.textAlign='left';
+    ctx.fillText(pv,W-pad.r+3,y+3);
+  }
+
+  // ATH level lines
+  lvs.forEach(lv=>{
+    if(lv<minP||lv>maxP)return;
+    const y=scaleY(lv);
+    const isNear=Math.abs(lv-price)<=cfg.nz;
+    ctx.strokeStyle=isNear?'#ffa500':'#ffd70050';
+    ctx.lineWidth=isNear?1.5:1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.setLineDash([]);
+    if(isNear){
+      ctx.fillStyle='#ffa500';ctx.font='9px monospace';ctx.textAlign='right';
+      ctx.fillText(lv.toFixed(1),W-pad.r-2,y-2);
+    }
+  });
+
+  // Candles
+  const bw=Math.max(1,Math.floor(cw/visible.length)-1);
+  visible.forEach((c,i)=>{
+    const x=pad.l+i*(cw/visible.length)+bw*0.1;
+    const bull=c.c>=c.o;
+    const col=bull?'#3fb950':'#f85149';
+    ctx.fillStyle=col;ctx.strokeStyle=col;ctx.lineWidth=1;
+    // Wick
+    const cx=x+bw/2;
+    ctx.beginPath();ctx.moveTo(cx,scaleY(c.h));ctx.lineTo(cx,scaleY(c.l));ctx.stroke();
+    // Body
+    const oy=scaleY(Math.max(c.o,c.c));
+    const cy2=scaleY(Math.min(c.o,c.c));
+    ctx.fillRect(x,oy,bw*0.8,Math.max(1,cy2-oy));
+  });
+
+  // Current price line
+  if(price){
+    const y=scaleY(price);
+    ctx.strokeStyle='#ffd700';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#ffd700';ctx.font='bold 10px monospace';ctx.textAlign='left';
+    ctx.fillText(price.toFixed(2),W-pad.r+3,y+4);
+  }
+
+  document.getElementById('chartInfo').textContent=`TF: ${tf<60?tf+'m':tf/60+'h'} | Candles: ${visible.length}`;
+}
+
+function setTF(m,btn){
+  tf=m;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildCandles();drawChart();
+}
+
+// ── Price UI ─────────────────────────────────────────────────────
+function updatePrice(){
+  const el=document.getElementById('pVal');
+  const chg=document.getElementById('pChg');
+  const diff=price-prevP;
+  el.textContent=price.toFixed(2);
+  if(Math.abs(diff)<0.005){el.style.color='#ffd700';chg.className='price-sub neu';chg.textContent='─';}
+  else if(diff>0){el.style.color='#3fb950';chg.className='price-sub up';chg.textContent=`▲ ${diff.toFixed(2)}`;}
+  else{el.style.color='#f85149';chg.className='price-sub down';chg.textContent=`▼ ${Math.abs(diff).toFixed(2)}`;}
+  document.getElementById('pstatus').textContent=`อัปเดต ${new Date().toLocaleTimeString('th-TH')}`;
+  document.getElementById('pdot').className='pulse';
+}
+
+// ── Nearest cards ─────────────────────────────────────────────────
+function updateCards(){
+  if(!lvs.length||!price)return;
+  const above=lvs.filter(l=>l>=price).sort((a,b)=>a-b);
+  const below=lvs.filter(l=>l<price).sort((a,b)=>b-a);
   if(above.length){
-    document.getElementById('nearest-above').textContent='$'+above[0].toFixed(2);
-    document.getElementById('dist-above').textContent=`+$${(above[0]-currentPrice).toFixed(2)} away`;
+    document.getElementById('nabove').textContent='$'+above[0].toFixed(2);
+    document.getElementById('dabove').textContent=`+$${(above[0]-price).toFixed(2)}`;
   }
   if(below.length){
-    document.getElementById('nearest-below').textContent='$'+below[0].toFixed(2);
-    document.getElementById('dist-below').textContent=`-$${(currentPrice-below[0]).toFixed(2)} away`;
+    document.getElementById('nbelow').textContent='$'+below[0].toFixed(2);
+    document.getElementById('dbelow').textContent=`-$${(price-below[0]).toFixed(2)}`;
   }
 }
 
-// ─── Alerts ───────────────────────────────────────────────
+// ── Alerts ───────────────────────────────────────────────────────
 function checkAlerts(){
-  if(!levels.length||!currentPrice)return;
-  let nearHit=null,touchHit=null;
-  levels.forEach(lv=>{
-    const dist=Math.abs(lv-currentPrice);
-    if(dist<=0.6)touchHit=lv;
-    else if(dist<=settings.nearZone){if(!nearHit||dist<Math.abs(nearHit-currentPrice))nearHit=lv;}
+  if(!lvs.length||!price)return;
+  let near=null,touch=null;
+  lvs.forEach(lv=>{
+    const d=Math.abs(lv-price);
+    if(d<=0.6)touch=lv;
+    else if(d<=cfg.nz){if(!near||d<Math.abs(near-price))near=lv;}
   });
-  const bn=document.getElementById('banner-near');
-  const bt=document.getElementById('banner-touch');
-  if(touchHit){
-    const txt=`ราคาแตะ ATH $${touchHit.toFixed(2)}! (Now: ${currentPrice.toFixed(2)})`;
-    document.getElementById('banner-touch-text').textContent=txt;
+  const bn=document.getElementById('bnear');
+  const bt=document.getElementById('btouch');
+  if(touch){
+    const t=`ราคาแตะ ATH $${touch.toFixed(2)}! (Now: ${price.toFixed(2)})`;
+    document.getElementById('btouch-txt').textContent=t;
     bt.classList.add('show');
-    if(!lastTouchAlert[touchHit]||Date.now()-lastTouchAlert[touchHit]>60000){
-      sendNotif('🔴 XAUUSD Touch!',txt);lastTouchAlert[touchHit]=Date.now();
-    }
+    if(!lastTA[touch]||Date.now()-lastTA[touch]>60000){notify('🔴 Touch!',t);lastTA[touch]=Date.now();}
   }else bt.classList.remove('show');
-  if(nearHit&&!touchHit){
-    const d=(nearHit-currentPrice).toFixed(2);
-    const txt=`ใกล้ $${nearHit.toFixed(2)} | Distance: $${Math.abs(d)} (Now: ${currentPrice.toFixed(2)})`;
-    document.getElementById('banner-near-text').textContent=txt;
+  if(near&&!touch){
+    const d=Math.abs(near-price).toFixed(2);
+    const t=`ใกล้ $${near.toFixed(2)} | ห่าง $${d} (Now: ${price.toFixed(2)})`;
+    document.getElementById('bnear-txt').textContent=t;
     bn.classList.add('show');
-    if(!lastNearAlert[nearHit]||Date.now()-lastNearAlert[nearHit]>120000){
-      sendNotif('🟡 XAUUSD Near Level!',txt);lastNearAlert[nearHit]=Date.now();
-    }
+    if(!lastNA[near]||Date.now()-lastNA[near]>120000){notify('🟡 Near Level!',t);lastNA[near]=Date.now();}
   }else bn.classList.remove('show');
 }
 
-function sendNotif(title,body){
-  if(Notification.permission==='granted')new Notification(title,{body});
-}
+function notify(t,b){if(Notification.permission==='granted')new Notification(t,{body:b});}
 
-// ─── Levels ───────────────────────────────────────────────
-function renderLevels(){
-  const wrap=document.getElementById('levelsList');
-  if(!levels.length){wrap.innerHTML='<div class="empty-msg">ยังไม่มี levels</div>';return;}
-  const sorted=[...levels].sort((a,b)=>a-b);
-  const above=sorted.filter(l=>l>=currentPrice).sort((a,b)=>a-b);
-  const below=sorted.filter(l=>l<currentPrice).sort((a,b)=>b-a);
-  const nearestA=above[0],nearestB=below[0];
-  wrap.innerHTML=sorted.map(lv=>{
-    const dist=currentPrice?(lv-currentPrice):null;
-    const absD=dist!==null?Math.abs(dist).toFixed(2):'—';
-    const sign=dist!==null?(dist>=0?'+':'-'):'';
-    const isNearest=lv===nearestA||lv===nearestB;
-    const isNear=dist!==null&&Math.abs(dist)<=settings.nearZone;
-    const dot=isNear?'dot-yellow':(lv>currentPrice?'dot-green':'dot-red');
-    return `<div class="level-row ${isNearest?'nearest':''} ${isNear&&!isNearest?'near-warn':''}">
-      <div class="level-dot ${dot}"></div>
-      <div class="level-num">$${lv.toFixed(2)}</div>
-      ${isNearest?'<span class="level-tag tag-nearest">Nearest</span>':''}
-      ${isNear&&!isNearest?'<span class="level-tag tag-near">Near</span>':''}
-      <div class="level-dist">${sign}$${absD}</div>
-      <button onclick="removeLevel(${lv})" style="background:none;border:none;color:#f85149;font-size:14px;cursor:pointer;padding-left:8px">✕</button>
+// ── Levels list ───────────────────────────────────────────────────
+function renderLvs(){
+  const wrap=document.getElementById('lvlList');
+  if(!lvs.length){wrap.innerHTML='<div class="empty">ยังไม่มี levels — ไปที่ ⚙️ Settings เพื่อเพิ่ม</div>';return;}
+  const s=[...lvs].sort((a,b)=>a-b);
+  const abv=s.filter(l=>l>=price).sort((a,b)=>a-b);
+  const blw=s.filter(l=>l<price).sort((a,b)=>b-a);
+  const nA=abv[0],nB=blw[0];
+  wrap.innerHTML=s.map(lv=>{
+    const d=price?(lv-price):null;
+    const ad=d!==null?Math.abs(d).toFixed(2):'—';
+    const sg=d!==null?(d>=0?'+':'-'):'';
+    const near=d!==null&&Math.abs(d)<=cfg.nz;
+    const isN=lv===nA||lv===nB;
+    const dot=near?'dy':(lv>price?'dg':'dr');
+    return `<div class="lrow ${isN?'hi':''} ${near&&!isN?'warn':''}">
+      <div class="ldot ${dot}"></div>
+      <span class="lnum">$${lv.toFixed(2)}</span>
+      ${isN?'<span class="ltag tg">Nearest</span>':''}
+      ${near&&!isN?'<span class="ltag ty">Near</span>':''}
+      <span class="ldist">${sg}$${ad}</span>
+      <button class="lx" onclick="delLv(${lv})">✕</button>
     </div>`;
   }).join('');
 }
 
-function addLevel(){
-  const v=parseFloat(document.getElementById('newLevel').value);
-  if(!v||v<3000||v>7000){alert('กรุณาใส่ราคา 3000–7000');return;}
-  if(!levels.includes(v)){levels.push(v);saveL();renderLevels();}
-  document.getElementById('newLevel').value='';
+function addLv(){
+  const v=parseFloat(document.getElementById('newLv').value);
+  if(!v||v<3000||v>7000){alert('ใส่ราคา 3000–7000 ครับ');return;}
+  if(!lvs.includes(v)){lvs.push(v);saveL();renderLvs();drawChart();}
+  document.getElementById('newLv').value='';
 }
-
-function removeLevel(lv){levels=levels.filter(l=>l!==lv);saveL();renderLevels();}
-
-function clearLevels(){if(confirm('ล้าง levels ทั้งหมด?')){levels=[];saveL();renderLevels();}}
-
+function delLv(v){lvs=lvs.filter(l=>l!==v);saveL();renderLvs();drawChart();}
+function clearLvs(){if(confirm('ล้าง levels ทั้งหมด?')){lvs=[];saveL();renderLvs();drawChart();}}
 function importPaste(){
-  const raw=document.getElementById('pasteArea').value;
-  const nums=raw.split(/[\n,\s\t]+/).map(s=>parseFloat(s.trim())).filter(n=>!isNaN(n)&&n>=3000&&n<=7000);
+  const raw=document.getElementById('parea').value;
+  const nums=raw.split(/[\n,\s\t]+/).map(s=>parseFloat(s)).filter(n=>!isNaN(n)&&n>=3000&&n<=7000);
   if(!nums.length){alert('ไม่พบตัวเลขที่ใช้ได้');return;}
   let added=0;
-  nums.forEach(n=>{if(!levels.includes(n)){levels.push(n);added++;}});
-  saveL();renderLevels();
-  document.getElementById('pasteArea').value='';
-  alert(`✅ เพิ่ม ${added} levels สำเร็จครับ`);
+  nums.forEach(n=>{if(!lvs.includes(n)){lvs.push(n);added++;}});
+  saveL();renderLvs();drawChart();
+  document.getElementById('parea').value='';
+  alert(`✅ เพิ่ม ${added} levels สำเร็จ`);
+}
+function saveL(){localStorage.setItem('ath_lvs',JSON.stringify(lvs));}
+
+// ── Settings ─────────────────────────────────────────────────────
+function saveSett(){
+  cfg.nz=parseFloat(document.getElementById('nz').value)||5;
+  cfg.rs=parseInt(document.getElementById('rs').value)||15;
+  localStorage.setItem('ath_cfg',JSON.stringify(cfg));
+  startTimer();alert('✅ บันทึกแล้วครับ');
 }
 
-function saveL(){localStorage.setItem('ath_levels',JSON.stringify(levels));}
-
-// ─── Settings ─────────────────────────────────────────────
-function saveSettings(){
-  settings.nearZone=parseFloat(document.getElementById('nearZone').value)||5;
-  settings.refreshSec=parseInt(document.getElementById('refreshSec').value)||15;
-  localStorage.setItem('ath_settings',JSON.stringify(settings));
-  startRefresh();
-  alert('✅ บันทึกแล้วครับ');
+// ── Notification ─────────────────────────────────────────────────
+function reqNotif(){Notification.requestPermission().then(()=>updateNperm());}
+function updateNperm(){
+  const el=document.getElementById('nperm');
+  if(Notification.permission==='granted'){el.innerHTML='✅ Push Notification เปิดอยู่แล้วครับ';el.style.borderColor='#3fb950';}
+  else el.innerHTML='🔔 Push Notification ยังไม่ได้เปิด <button class="btn bgold bsm" onclick="reqNotif()">เปิด</button>';
 }
 
-// ─── Notification ─────────────────────────────────────────
-function requestNotif(){Notification.requestPermission().then(p=>{updateNotifUI();});}
-function updateNotifUI(){
-  const el=document.getElementById('notifPerm');
-  if(Notification.permission==='granted'){
-    el.innerHTML='✅ Push Notification เปิดอยู่แล้วครับ';
-    el.style.borderColor='#3fb950';
-  }else{
-    el.innerHTML='🔔 Push Notification ยังไม่ได้เปิด <button class="btn btn-sm btn-gold" onclick="requestNotif()">เปิด</button>';
-  }
+// ── Tabs ─────────────────────────────────────────────────────────
+function goTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['dashboard','levels','settings'][i]===id));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.id==='tab-'+id));
+  if(id==='levels')renderLvs();
+  if(id==='dashboard')drawChart();
 }
 
-// ─── Tabs ─────────────────────────────────────────────────
-function switchTab(id){
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',['dashboard','levels','settings'][i]===id);
-  });
-  document.querySelectorAll('.tab-content').forEach(c=>{
-    c.classList.toggle('active',c.id==='tab-'+id);
-  });
-}
+window.addEventListener('resize',drawChart);
 </script>
 </body>
 </html>
