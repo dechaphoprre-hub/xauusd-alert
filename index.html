@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta name="theme-color" content="#0d1117">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <title>XAUUSD ATH Alert</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightweight-charts/4.1.3/lightweight-charts.standalone.production.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-height:100vh}
 .header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{font-size:16px;font-weight:700;color:#ffd700}
-.price-badge{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:6px 12px;text-align:right;min-width:130px;cursor:pointer}
+.price-badge{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:6px 12px;text-align:right;min-width:130px}
 .price-val{font-size:22px;font-weight:700;font-family:monospace;color:#ffd700;transition:color .3s}
 .price-sub{font-size:11px;margin-top:1px}
 .up{color:#3fb950}.down{color:#f85149}.neu{color:#8b949e}
@@ -21,12 +21,18 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
 .tab-content{display:none}.tab-content.active{display:block}
 .section{padding:12px 16px}
 .sec-title{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.pulse{width:7px;height:7px;border-radius:50%;background:#3fb950;animation:blink 2s infinite;display:inline-block;flex-shrink:0}
+.pulse{width:7px;height:7px;border-radius:50%;background:#3fb950;animation:blink 1.5s infinite;display:inline-block;flex-shrink:0}
 .pulse.off{background:#f85149;animation:none}
+.pulse.warn{background:#ffa500}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* Status */
+.status-bar{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#8b949e;display:flex;justify-content:space-between;align-items:center}
+.src-pill{font-size:10px;padding:2px 8px;border-radius:10px;background:#21262d;border:1px solid #30363d}
+.src-pill.live{border-color:#3fb95066;color:#3fb950}
+.src-pill.warn{border-color:#d2992266;color:#d29922}
 /* Chart */
-.chart-outer{border-radius:10px;overflow:hidden;margin-bottom:6px;border:1px solid #30363d;background:#161b22}
-#tv-widget{width:100%;height:360px;border:none;display:block}
+.chart-wrap{background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;margin-bottom:6px}
+#chart{width:100%;height:260px}
 .tf-row{display:flex;gap:6px;margin-bottom:12px}
 .tf-btn{flex:1;padding:6px 0;background:#21262d;border:1px solid #30363d;border-radius:6px;color:#8b949e;font-size:12px;cursor:pointer;text-align:center}
 .tf-btn.active{background:#ffd700;color:#0d1117;border-color:#ffd700;font-weight:700}
@@ -35,11 +41,6 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
 .banner.show{display:flex}
 .bnear{background:#2e1f00;border:1px solid #d29922;color:#ffa500}
 .btouch{background:#2d0f0f;border:1px solid #f85149;color:#f85149}
-/* Status */
-.status-bar{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#8b949e;display:flex;justify-content:space-between;align-items:center}
-.src-pill{font-size:10px;padding:2px 8px;border-radius:10px;background:#21262d;border:1px solid #30363d}
-.src-pill.live{border-color:#3fb95066;color:#3fb950}
-.src-pill.sim{border-color:#d2992266;color:#d29922}
 /* Cards */
 .alert-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .acard{background:#161b22;border-radius:10px;padding:12px;text-align:center}
@@ -54,7 +55,7 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
 .levels-wrap{background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;margin-bottom:12px}
 .lrow{display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #21262d}
 .lrow:last-child{border-bottom:none}
-.lrow.hi{background:#1c2a1a}.lrow.warn{background:#2a1e0a}
+.lrow.hi{background:#1c2a1a}.lrow.warn-row{background:#2a1e0a}
 .ldot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
 .dg{background:#3fb950}.dy{background:#ffa500}.dr{background:#f85149}
 .lnum{font-family:monospace;flex:1;font-size:14px}
@@ -75,17 +76,15 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
 .bsm{padding:6px 12px;font-size:12px;width:auto}
 .parea{width:100%;background:#21262d;border:1px solid #30363d;border-radius:6px;padding:8px;color:#e6edf3;font-size:12px;font-family:monospace;resize:vertical;min-height:80px;outline:none}
 .nperm{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#8b949e;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.note{font-size:11px;color:#8b949e;line-height:1.6;padding:10px 0}
-.note b{color:#ffd700}
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="logo">⚡ XAUUSD</div>
-  <div class="price-badge" onclick="fetchPrice()" title="กดเพื่อรีเฟรชราคา">
+  <div class="price-badge">
     <div class="price-val" id="pVal">—</div>
-    <div class="price-sub neu" id="pChg">กำลังโหลด...</div>
+    <div class="price-sub neu" id="pChg">กำลังเชื่อมต่อ...</div>
   </div>
 </div>
 
@@ -106,19 +105,13 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
     <span class="src-pill" id="srcPill">—</span>
   </div>
 
-  <!-- TradingView Widget -->
-  <div class="sec-title"><span class="pulse"></span>Live Chart (XAUUSD)</div>
-  <div class="chart-outer">
-    <iframe id="tv-widget"
-      src="https://s.tradingview.com/widgetsnippet/embed/?frameElementId=tv-widget&symbol=OANDA%3AXAUUSD&interval=5&theme=dark&style=1&locale=th&toolbar_bg=%23161b22&hide_top_toolbar=0&hide_legend=0&save_image=0&withdateranges=1"
-      allowtransparency="true" allow="clipboard-write"></iframe>
-  </div>
+  <div class="sec-title"><span class="pulse" id="cdot"></span>Live Chart — XAU/USD</div>
+  <div class="chart-wrap"><div id="chart"></div></div>
   <div class="tf-row">
-    <div class="tf-btn" onclick="setTF('1',this)">1m</div>
-    <div class="tf-btn active" onclick="setTF('5',this)">5m</div>
-    <div class="tf-btn" onclick="setTF('15',this)">15m</div>
-    <div class="tf-btn" onclick="setTF('60',this)">1h</div>
-    <div class="tf-btn" onclick="setTF('240',this)">4h</div>
+    <div class="tf-btn active" onclick="setTF(1,this)">1m</div>
+    <div class="tf-btn" onclick="setTF(5,this)">5m</div>
+    <div class="tf-btn" onclick="setTF(15,this)">15m</div>
+    <div class="tf-btn" onclick="setTF(60,this)">1h</div>
   </div>
 
   <div class="sec-title">Nearest ATH Levels</div>
@@ -148,7 +141,6 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
   <div class="sec-title">การแจ้งเตือน</div>
   <div class="scard">
     <div class="irow"><label>Near Zone (±$)</label><input class="inp" type="number" id="nz" value="5" min="1" max="200"></div>
-    <div class="irow"><label>Refresh (วิ)</label><input class="inp" type="number" id="rs" value="20" min="10" max="300"></div>
     <button class="btn bgold" onclick="saveSett()">💾 บันทึก Settings</button>
   </div>
 
@@ -160,7 +152,7 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
 
   <div class="sec-title" style="margin-top:16px">Paste หลาย Levels (จาก Excel)</div>
   <div class="scard">
-    <textarea class="parea" id="parea" placeholder="วาง levels จาก Excel&#10;คั่นด้วย Enter, comma หรือ space&#10;เช่น:&#10;3500&#10;3550&#10;3600.5"></textarea>
+    <textarea class="parea" id="parea" placeholder="วาง levels จาก Excel&#10;คั่นด้วย Enter หรือ comma&#10;เช่น:&#10;3500&#10;3550&#10;3600"></textarea>
     <br><br>
     <button class="btn bgold" onclick="importPaste()">📥 Import Levels</button>
   </div>
@@ -168,135 +160,218 @@ body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-heig
   <div class="scard" style="margin-top:4px">
     <button class="btn bred" onclick="clearLvs()">🗑️ ล้าง Levels ทั้งหมด</button>
   </div>
-
-  <p class="note">💡 <b>วิธีใช้งาน:</b> บันทึกไฟล์นี้เป็น <b>index.html</b> แล้ว upload ขึ้น GitHub Pages ที่ repo <b>xauusd-alert</b> ราคา real-time และ chart จะทำงานได้ทันทีครับ</p>
 </div>
 </div>
 
 <script>
-// ── Storage ──────────────────────────────────────────────
-let lvs  = JSON.parse(localStorage.getItem('ath_lvs') || '[]');
-let cfg  = JSON.parse(localStorage.getItem('ath_cfg') || '{"nz":5,"rs":20}');
-let price=0, prevP=0, timer=null;
+// ── State ────────────────────────────────────────────────
+let lvs = JSON.parse(localStorage.getItem('ath_lvs')||'[]');
+let cfg = JSON.parse(localStorage.getItem('ath_cfg')||'{"nz":5}');
+let price=0, prevP=0;
 let lastNA={}, lastTA={};
+let tf=1; // minutes
+let ws=null, wsRetry=0;
 
-document.getElementById('nz').value = cfg.nz;
-document.getElementById('rs').value = cfg.rs;
+// Chart
+let chart, cSeries;
+let candles={}; // {tfMin: [{time,open,high,low,close}]}
+let levelLines=[];
+
+document.getElementById('nz').value=cfg.nz;
 updateNperm();
-fetchPrice();
-startTimer();
+initChart();
+connectWS();
+loadHistory(tf);
 renderLvs();
 
-// ── Price: fallback chain ─────────────────────────────────
-async function fetchPrice(){
-  setStatus(true,'กำลังดึงราคา...','');
-
-  // 1. Yahoo Finance GC=F (Gold Futures) — no CORS
-  try{
-    const r = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1m&range=1d',
-      {signal:AbortSignal.timeout(7000)}
-    );
-    const d = await r.json();
-    const p = parseFloat(d?.chart?.result?.[0]?.meta?.regularMarketPrice);
-    if(p>2000){ setP(p,'Yahoo Finance ✓',true); return; }
-  }catch(e){}
-
-  // 2. Yahoo Finance XAUUSD=X
-  try{
-    const r = await fetch(
-      'https://query2.finance.yahoo.com/v8/finance/chart/XAUUSD%3DX?interval=1m&range=1d',
-      {signal:AbortSignal.timeout(7000)}
-    );
-    const d = await r.json();
-    const p = parseFloat(d?.chart?.result?.[0]?.meta?.regularMarketPrice);
-    if(p>2000){ setP(p,'Yahoo XAUUSD ✓',true); return; }
-  }catch(e){}
-
-  // 3. Coinbase XAU-USD (สำรอง)
-  try{
-    const r = await fetch('https://api.coinbase.com/v2/prices/XAU-USD/spot',
-      {signal:AbortSignal.timeout(6000)});
-    const d = await r.json();
-    const p = parseFloat(d?.data?.amount);
-    if(p>2000){ setP(p,'Coinbase ✓',true); return; }
-  }catch(e){}
-
-  // 4. Fawazahmed0 currency API
-  try{
-    const r = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json',
-      {signal:AbortSignal.timeout(6000)});
-    const d = await r.json();
-    const p = parseFloat(d?.xau?.usd);
-    if(p>2000){ setP(p,'CurrencyAPI ✓',true); return; }
-  }catch(e){}
-
-  // Fallback
-  setStatus(false,'เชื่อมต่อไม่ได้ — กดที่ราคาเพื่อลองใหม่','');
-  document.getElementById('srcPill').textContent='No signal';
-  document.getElementById('srcPill').className='src-pill sim';
+// ── Lightweight Chart ─────────────────────────────────────
+function initChart(){
+  const el=document.getElementById('chart');
+  chart=LightweightCharts.createChart(el,{
+    width:el.offsetWidth, height:260,
+    layout:{background:{color:'#161b22'},textColor:'#8b949e'},
+    grid:{vertLines:{color:'#21262d'},horzLines:{color:'#21262d'}},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+    rightPriceScale:{borderColor:'#30363d'},
+    timeScale:{borderColor:'#30363d',timeVisible:true,secondsVisible:false},
+  });
+  cSeries=chart.addCandlestickSeries({
+    upColor:'#3fb950',downColor:'#f85149',
+    borderUpColor:'#3fb950',borderDownColor:'#f85149',
+    wickUpColor:'#3fb950',wickDownColor:'#f85149',
+  });
+  window.addEventListener('resize',()=>chart.applyOptions({width:el.offsetWidth}));
 }
 
-function setP(p, src, live){
-  prevP = price||p;
-  price = p;
-  const el  = document.getElementById('pVal');
-  const chg = document.getElementById('pChg');
-  const diff = p - prevP;
-  el.textContent = p.toFixed(2);
-  if(Math.abs(diff)<0.005){ el.style.color='#ffd700'; chg.className='price-sub neu'; chg.textContent='─'; }
-  else if(diff>0){ el.style.color='#3fb950'; chg.className='price-sub up'; chg.textContent=`▲ ${diff.toFixed(2)}`; }
-  else{ el.style.color='#f85149'; chg.className='price-sub down'; chg.textContent=`▼ ${Math.abs(diff).toFixed(2)}`; }
-  const now = new Date().toLocaleTimeString('th-TH');
-  setStatus(true, `อัปเดต ${now}`, src);
-  document.getElementById('srcPill').className = 'src-pill ' + (live?'live':'sim');
+function drawLevelLines(){
+  levelLines.forEach(l=>{try{cSeries.removePriceLine(l);}catch(e){}});
+  levelLines=[];
+  lvs.forEach(lv=>{
+    const near=price&&Math.abs(lv-price)<=cfg.nz;
+    const l=cSeries.createPriceLine({
+      price:lv,
+      color:near?'#ffa500':'rgba(255,215,0,0.35)',
+      lineWidth:near?2:1,
+      lineStyle:LightweightCharts.LineStyle.Dashed,
+      axisLabelVisible:true,
+      title:near?`⚡${lv}`:`${lv}`,
+    });
+    levelLines.push(l);
+  });
+}
+
+// ── Load historical candles from Coinbase ─────────────────
+async function loadHistory(tfMin){
+  const gran={1:60,5:300,15:900,60:3600}[tfMin]||60;
+  const end=Math.floor(Date.now()/1000);
+  const start=end-gran*200;
+  try{
+    const r=await fetch(
+      `https://api.exchange.coinbase.com/products/XAU-USD/candles?granularity=${gran}&start=${start}&end=${end}`,
+      {signal:AbortSignal.timeout(8000)}
+    );
+    const raw=await r.json();
+    if(!Array.isArray(raw)||!raw.length) throw new Error('empty');
+    // Coinbase returns [time,low,high,open,close,volume] newest first
+    const data=raw.reverse().map(c=>({
+      time:c[0],
+      open:parseFloat(c[3]),
+      high:parseFloat(c[2]),
+      low:parseFloat(c[1]),
+      close:parseFloat(c[4]),
+    }));
+    candles[tfMin]=data;
+    cSeries.setData(data);
+    chart.timeScale().fitContent();
+    drawLevelLines();
+    document.getElementById('cdot').className='pulse';
+  }catch(e){
+    console.log('History err:',e);
+    document.getElementById('cdot').className='pulse warn';
+  }
+}
+
+function setTF(m,btn){
+  tf=m;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(candles[m]){cSeries.setData(candles[m]);chart.timeScale().fitContent();drawLevelLines();}
+  else loadHistory(m);
+}
+
+// ── WebSocket — Coinbase real-time ticks ──────────────────
+function connectWS(){
+  if(ws){try{ws.close();}catch(e){}}
+  ws=new WebSocket('wss://advanced-trade-ws.coinbase.com/ws');
+
+  ws.onopen=()=>{
+    wsRetry=0;
+    ws.send(JSON.stringify({
+      type:'subscribe',
+      product_ids:['XAU-USD'],
+      channel:'ticker'
+    }));
+    setStatus(true,'WebSocket เชื่อมต่อแล้ว','Coinbase WS ✓',true);
+  };
+
+  ws.onmessage=e=>{
+    try{
+      const d=JSON.parse(e.data);
+      // Advanced Trade API format
+      const events=d.events||[];
+      for(const ev of events){
+        const tickers=ev.tickers||[];
+        for(const t of tickers){
+          const p=parseFloat(t.price);
+          if(p>2000){
+            updateCandle(p);
+            setP(p);
+            return;
+          }
+        }
+      }
+    }catch(err){}
+  };
+
+  ws.onerror=()=>{};
+  ws.onclose=()=>{
+    setStatus(false,'WebSocket หลุด — กำลังเชื่อมใหม่...','',false);
+    // Retry backoff
+    const delay=Math.min(30000, 2000*Math.pow(2,wsRetry++));
+    setTimeout(()=>{connectWS(); loadHistory(tf);}, delay);
+  };
+}
+
+// ── Update last candle from tick ─────────────────────────
+function updateCandle(p){
+  const gran={1:60,5:300,15:900,60:3600}[tf]||60;
+  const now=Math.floor(Date.now()/1000);
+  const candleTime=now-now%gran;
+  if(!candles[tf]) candles[tf]=[];
+  const arr=candles[tf];
+  const last=arr[arr.length-1];
+  if(last&&last.time===candleTime){
+    last.close=p;
+    if(p>last.high)last.high=p;
+    if(p<last.low)last.low=p;
+    cSeries.update(last);
+  } else if(!last||candleTime>last.time){
+    const newC={time:candleTime,open:p,high:p,low:p,close:p};
+    arr.push(newC);
+    if(arr.length>300)arr.shift();
+    cSeries.update(newC);
+  }
+}
+
+// ── Price UI ─────────────────────────────────────────────
+function setP(p){
+  prevP=price||p;
+  price=p;
+  const el=document.getElementById('pVal');
+  const chg=document.getElementById('pChg');
+  const diff=p-prevP;
+  el.textContent=p.toFixed(2);
+  if(Math.abs(diff)<0.005){el.style.color='#ffd700';chg.className='price-sub neu';chg.textContent='─';}
+  else if(diff>0){el.style.color='#3fb950';chg.className='price-sub up';chg.textContent=`▲ ${diff.toFixed(2)}`;}
+  else{el.style.color='#f85149';chg.className='price-sub down';chg.textContent=`▼ ${Math.abs(diff).toFixed(2)}`;}
   updateCards();
   checkAlerts();
   renderLvs();
 }
 
-function setStatus(ok, txt, src){
-  document.getElementById('pdot').className = 'pulse' + (ok?'':' off');
-  document.getElementById('pstatus').textContent = txt;
-  if(src) document.getElementById('srcPill').textContent = src;
+function setStatus(ok,txt,src,live){
+  document.getElementById('pdot').className='pulse'+(ok?'':' off');
+  document.getElementById('pstatus').textContent=txt;
+  if(src){
+    const pill=document.getElementById('srcPill');
+    pill.textContent=src;
+    pill.className='src-pill '+(live?'live':'warn');
+  }
 }
 
-function startTimer(){
-  if(timer) clearInterval(timer);
-  timer = setInterval(fetchPrice, cfg.rs*1000);
-}
-
-// ── TradingView iframe ────────────────────────────────────
-function setTF(iv, btn){
-  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tv-widget').src =
-    `https://s.tradingview.com/widgetsnippet/embed/?frameElementId=tv-widget&symbol=OANDA%3AXAUUSD&interval=${iv}&theme=dark&style=1&locale=th&toolbar_bg=%23161b22&hide_top_toolbar=0&hide_legend=0&save_image=0&withdateranges=1`;
-}
-
-// ── Nearest cards ─────────────────────────────────────────
+// ── Nearest cards ────────────────────────────────────────
 function updateCards(){
-  if(!lvs.length||!price) return;
-  const above = lvs.filter(l=>l>=price).sort((a,b)=>a-b);
-  const below = lvs.filter(l=>l<price).sort((a,b)=>b-a);
+  if(!lvs.length||!price)return;
+  const above=lvs.filter(l=>l>=price).sort((a,b)=>a-b);
+  const below=lvs.filter(l=>l<price).sort((a,b)=>b-a);
   if(above.length){
-    document.getElementById('nabove').textContent = '$'+above[0].toFixed(2);
-    document.getElementById('dabove').textContent = `+$${(above[0]-price).toFixed(2)} away`;
+    document.getElementById('nabove').textContent='$'+above[0].toFixed(2);
+    document.getElementById('dabove').textContent=`+$${(above[0]-price).toFixed(2)} away`;
   }
   if(below.length){
-    document.getElementById('nbelow').textContent = '$'+below[0].toFixed(2);
-    document.getElementById('dbelow').textContent = `-$${(price-below[0]).toFixed(2)} away`;
+    document.getElementById('nbelow').textContent='$'+below[0].toFixed(2);
+    document.getElementById('dbelow').textContent=`-$${(price-below[0]).toFixed(2)} away`;
   }
 }
 
-// ── Alerts ────────────────────────────────────────────────
+// ── Alerts ───────────────────────────────────────────────
 function checkAlerts(){
-  if(!lvs.length||!price) return;
-  let near=null, touch=null;
+  if(!lvs.length||!price)return;
+  let near=null,touch=null;
   lvs.forEach(lv=>{
     const d=Math.abs(lv-price);
-    if(d<=0.6) touch=lv;
-    else if(d<=cfg.nz){ if(!near||d<Math.abs(near-price)) near=lv; }
+    if(d<=0.6)touch=lv;
+    else if(d<=cfg.nz){if(!near||d<Math.abs(near-price))near=lv;}
   });
   const bn=document.getElementById('bnear');
   const bt=document.getElementById('btouch');
@@ -304,23 +379,23 @@ function checkAlerts(){
     const t=`ราคาแตะ ATH $${touch.toFixed(2)}! (Now: ${price.toFixed(2)})`;
     document.getElementById('btouch-txt').textContent=t;
     bt.classList.add('show');
-    if(!lastTA[touch]||Date.now()-lastTA[touch]>60000){ notify('🔴 Touch!',t); lastTA[touch]=Date.now(); }
-  } else bt.classList.remove('show');
+    if(!lastTA[touch]||Date.now()-lastTA[touch]>60000){notify('🔴 Touch!',t);lastTA[touch]=Date.now();}
+  }else bt.classList.remove('show');
   if(near&&!touch){
     const d=Math.abs(near-price).toFixed(2);
     const t=`ใกล้ $${near.toFixed(2)} ห่าง $${d} (Now: ${price.toFixed(2)})`;
     document.getElementById('bnear-txt').textContent=t;
     bn.classList.add('show');
-    if(!lastNA[near]||Date.now()-lastNA[near]>120000){ notify('🟡 Near!',t); lastNA[near]=Date.now(); }
-  } else bn.classList.remove('show');
+    if(!lastNA[near]||Date.now()-lastNA[near]>120000){notify('🟡 Near!',t);lastNA[near]=Date.now();}
+  }else bn.classList.remove('show');
 }
 
-function notify(t,b){ if(Notification.permission==='granted') new Notification(t,{body:b}); }
+function notify(t,b){if(Notification.permission==='granted')new Notification(t,{body:b});}
 
-// ── Levels ────────────────────────────────────────────────
+// ── Levels ───────────────────────────────────────────────
 function renderLvs(){
   const wrap=document.getElementById('lvlList');
-  if(!lvs.length){ wrap.innerHTML='<div class="empty">ยังไม่มี levels<br>ไปที่ ⚙️ Settings เพื่อเพิ่ม</div>'; return; }
+  if(!lvs.length){wrap.innerHTML='<div class="empty">ยังไม่มี levels<br>ไปที่ ⚙️ Settings เพื่อเพิ่ม</div>';return;}
   const s=[...lvs].sort((a,b)=>a-b);
   const nA=s.filter(l=>l>=price).sort((a,b)=>a-b)[0];
   const nB=s.filter(l=>l<price).sort((a,b)=>b-a)[0];
@@ -331,7 +406,7 @@ function renderLvs(){
     const near=d!==null&&Math.abs(d)<=cfg.nz;
     const isN=lv===nA||lv===nB;
     const dot=near?'dy':(lv>price?'dg':'dr');
-    return `<div class="lrow ${isN?'hi':''} ${near&&!isN?'warn':''}">
+    return `<div class="lrow ${isN?'hi':''} ${near&&!isN?'warn-row':''}">
       <div class="ldot ${dot}"></div>
       <span class="lnum">$${lv.toFixed(2)}</span>
       ${isN?'<span class="ltag tg">Nearest</span>':''}
@@ -344,50 +419,51 @@ function renderLvs(){
 
 function addLv(){
   const v=parseFloat(document.getElementById('newLv').value);
-  if(!v||v<3000||v>7000){ alert('ใส่ราคา 3000–7000 ครับ'); return; }
-  if(!lvs.includes(v)){ lvs.push(v); saveL(); renderLvs(); }
+  if(!v||v<3000||v>7000){alert('ใส่ราคา 3000–7000 ครับ');return;}
+  if(!lvs.includes(v)){lvs.push(v);saveL();renderLvs();drawLevelLines();}
   document.getElementById('newLv').value='';
 }
-function delLv(v){ lvs=lvs.filter(l=>l!==v); saveL(); renderLvs(); }
-function clearLvs(){ if(confirm('ล้าง levels ทั้งหมด?')){ lvs=[]; saveL(); renderLvs(); } }
+function delLv(v){lvs=lvs.filter(l=>l!==v);saveL();renderLvs();drawLevelLines();}
+function clearLvs(){if(confirm('ล้าง levels ทั้งหมด?')){lvs=[];saveL();renderLvs();drawLevelLines();}}
 function importPaste(){
   const raw=document.getElementById('parea').value;
   const nums=raw.split(/[\n,\s\t]+/).map(s=>parseFloat(s)).filter(n=>!isNaN(n)&&n>=3000&&n<=7000);
-  if(!nums.length){ alert('ไม่พบตัวเลขที่ใช้ได้'); return; }
+  if(!nums.length){alert('ไม่พบตัวเลขที่ใช้ได้');return;}
   let added=0;
-  nums.forEach(n=>{ if(!lvs.includes(n)){ lvs.push(n); added++; } });
-  saveL(); renderLvs();
+  nums.forEach(n=>{if(!lvs.includes(n)){lvs.push(n);added++;}});
+  saveL();renderLvs();drawLevelLines();
   document.getElementById('parea').value='';
   alert(`✅ เพิ่ม ${added} levels สำเร็จ`);
 }
-function saveL(){ localStorage.setItem('ath_lvs',JSON.stringify(lvs)); }
+function saveL(){localStorage.setItem('ath_lvs',JSON.stringify(lvs));}
 
-// ── Settings ──────────────────────────────────────────────
+// ── Settings ─────────────────────────────────────────────
 function saveSett(){
   cfg.nz=parseFloat(document.getElementById('nz').value)||5;
-  cfg.rs=parseInt(document.getElementById('rs').value)||20;
   localStorage.setItem('ath_cfg',JSON.stringify(cfg));
-  startTimer(); alert('✅ บันทึกแล้วครับ');
+  drawLevelLines();
+  alert('✅ บันทึกแล้วครับ');
 }
 
-// ── Notification ──────────────────────────────────────────
-function reqNotif(){ Notification.requestPermission().then(()=>updateNperm()); }
+// ── Notification ─────────────────────────────────────────
+function reqNotif(){Notification.requestPermission().then(()=>updateNperm());}
 function updateNperm(){
   const el=document.getElementById('nperm');
   if(Notification.permission==='granted'){
     el.innerHTML='✅ Push Notification เปิดอยู่แล้วครับ';
     el.style.borderColor='#3fb950';
-  } else {
+  }else{
     el.innerHTML='🔔 Push Notification ยังไม่ได้เปิด <button class="btn bgold bsm" onclick="reqNotif()">เปิด</button>';
   }
 }
 
-// ── Tabs ──────────────────────────────────────────────────
+// ── Tabs ─────────────────────────────────────────────────
 function goTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>
     t.classList.toggle('active',['dashboard','levels','settings'][i]===id));
   document.querySelectorAll('.tab-content').forEach(c=>
     c.classList.toggle('active',c.id==='tab-'+id));
+  if(id==='dashboard'){chart.applyOptions({width:document.getElementById('chart').offsetWidth});}
 }
 </script>
 </body>
