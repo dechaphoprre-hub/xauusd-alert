@@ -191,42 +191,48 @@ renderLvs();
 async function fetchPrice(){
   setStatus(true,'กำลังดึงราคา...','');
 
-  // 1. goldprice.org via allorigins
+  // 1. Yahoo Finance GC=F (Gold Futures) — no CORS
   try{
     const r = await fetch(
-      'https://api.allorigins.win/get?url='+encodeURIComponent('https://data-asg.goldprice.org/dbXRates/USD'),
-      {signal:AbortSignal.timeout(6000)}
+      'https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1m&range=1d',
+      {signal:AbortSignal.timeout(7000)}
     );
     const d = await r.json();
-    const obj = JSON.parse(d.contents);
-    const p = parseFloat(obj?.items?.[0]?.xauPrice);
-    if(p>2000){ setP(p,'goldprice.org ✓',true); return; }
+    const p = parseFloat(d?.chart?.result?.[0]?.meta?.regularMarketPrice);
+    if(p>2000){ setP(p,'Yahoo Finance ✓',true); return; }
   }catch(e){}
 
-  // 2. Metals.live via allorigins
+  // 2. Yahoo Finance XAUUSD=X
   try{
     const r = await fetch(
-      'https://api.allorigins.win/get?url='+encodeURIComponent('https://metals.live/api/spot'),
-      {signal:AbortSignal.timeout(6000)}
+      'https://query2.finance.yahoo.com/v8/finance/chart/XAUUSD%3DX?interval=1m&range=1d',
+      {signal:AbortSignal.timeout(7000)}
     );
     const d = await r.json();
-    const arr = JSON.parse(d.contents);
-    const gold = arr.find(x=>x.metal==='gold');
-    const p = parseFloat(gold?.price);
-    if(p>2000){ setP(p,'metals.live ✓',true); return; }
+    const p = parseFloat(d?.chart?.result?.[0]?.meta?.regularMarketPrice);
+    if(p>2000){ setP(p,'Yahoo XAUUSD ✓',true); return; }
   }catch(e){}
 
-  // 3. frankfurter XAU/USD
+  // 3. Coinbase XAU-USD (สำรอง)
   try{
-    const r = await fetch('https://api.frankfurter.app/latest?from=XAU&to=USD',
-      {signal:AbortSignal.timeout(5000)});
+    const r = await fetch('https://api.coinbase.com/v2/prices/XAU-USD/spot',
+      {signal:AbortSignal.timeout(6000)});
     const d = await r.json();
-    const p = parseFloat(d?.rates?.USD);
-    if(p>2000){ setP(p,'frankfurter ✓',true); return; }
+    const p = parseFloat(d?.data?.amount);
+    if(p>2000){ setP(p,'Coinbase ✓',true); return; }
   }catch(e){}
 
-  // Fallback: warn user
-  setStatus(false,'เชื่อมต่อไม่ได้ — กดรีเฟรช','');
+  // 4. Fawazahmed0 currency API
+  try{
+    const r = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json',
+      {signal:AbortSignal.timeout(6000)});
+    const d = await r.json();
+    const p = parseFloat(d?.xau?.usd);
+    if(p>2000){ setP(p,'CurrencyAPI ✓',true); return; }
+  }catch(e){}
+
+  // Fallback
+  setStatus(false,'เชื่อมต่อไม่ได้ — กดที่ราคาเพื่อลองใหม่','');
   document.getElementById('srcPill').textContent='No signal';
   document.getElementById('srcPill').className='src-pill sim';
 }
